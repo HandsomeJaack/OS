@@ -86,6 +86,7 @@ void arch(string dirpath, int& f) {
           throw runtime_error(string("writing file size error: ") +
                               strerror(errno));
         }
+
         cout << new_dir << endl;
 
         if (!write(f, new_dir.c_str(), len)) {
@@ -185,7 +186,6 @@ void rearch(string file) {
             string("size of directory doesn't match with DIR_SIZE size: ") +
             strerror(errno));
       }
-      // cout << dir << endl;
 
       stringstream parse(dir);
       string buf_string;
@@ -208,7 +208,6 @@ void rearch(string file) {
           }
         }
       }
-      // string res_dir = arch_dir + dir;
     }
 
     else if (is_directory == '0') {
@@ -266,7 +265,7 @@ int main(int argc, char* argv[]) {
   try {
     if (string(argv[1]) == "arch") {
       int f = open("../arch.swag", O_CREAT | O_WRONLY, S_IRWXG | S_IRWXU);
-      arch("./", f);
+      arch(".", f);
       close(f);
     } else if (string(argv[1]) == "rearch") {
       rearch("arch.swag");
