@@ -31,7 +31,7 @@ int main() {
     }
     vector<char *> ptr_vec;
     for (auto &str : vec) {
-      ptr_vec.push_back(str.data());
+      ptr_vec.push_back((char *)str.data());
     }
     ptr_vec.push_back(0);
 
@@ -68,6 +68,12 @@ int main() {
                               strerror(errno));
         }
         close(pipetka_in[0]);
+      }
+      if (is_ampersand == true) {
+        struct sigaction sa {};
+        sa.sa_handler = SIG_IGN;
+        sa.sa_flags = SA_RESTART;
+        sigaction(SIGINT, &sa, 0);
       }
       execvp(ptr_vec[0], ptr_vec.data());
     } else if (is_ampersand == true) {
