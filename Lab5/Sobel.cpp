@@ -25,15 +25,15 @@ struct args {
     int thread_number;
 };
 
-int *Sobel(void *input) {
+void *Sobel(void *input) {
 	int height = ((struct args *) input)->height;
     int width = ((struct args *) input)->width;
     unsigned char const *image = ((struct args *) input)->image;
     int threads_amount = ((struct args *) input)->threads_amount;
     int thread_number = ((struct args *) input)->thread_number;
-    vector<int> output_x_vec = ((struct args *) input)->output_x;
-    vector<int> output_y_vec = ((struct args *) input)->output_y;
-    vector<unsigned char> output_vec = ((struct args *) input)->output;
+    vector<int>& output_x_vec = ((struct args *) input)->output_x;
+    vector<int>& output_y_vec = ((struct args *) input)->output_y;
+    vector<unsigned char>& output_vec = ((struct args *) input)->output;
 	int step = ((height - 2) + threads_amount - 1) / threads_amount;
 	int start_height = step * thread_number;
 	int end_height = (int) fmin(start_height + step, height - 2);
@@ -117,17 +117,17 @@ int main(int argc, char* argv[]){
 	struct timespec start, finish;
 	clock_gettime(CLOCK_MONOTONIC, &start);
 
+     struct args params[threads_amount];
 	 for (int i = 0; i < threads_amount; ++i) {
-                struct args *params;
-                params->image = image;
-                params->output_x = output_x;
-                params->output_y = output_y;
-                params->output = output;
-                params->width = width;
-                params->height = height;
-                params->threads_amount = threads_amount;
-				pthread_create(&thr_id[i], NULL, Sobel, (void *) params);
-        }
+                params[i].image = image;
+                params[i].output_x = output_x;
+                params[i].output_y = output_y;
+                params[i].output = output;
+                params[i].width = width;
+                params[i].height = height;
+                params[i].threads_amount = threads_amount;
+				pthread_create(&thr_id[i], NULL, Sobel, (void *) (params+i));
+	}
 
 	for (int i = 0; i < threads_amount; ++i) {
                 pthread_join(thr_id[i], NULL);
@@ -137,7 +137,7 @@ int main(int argc, char* argv[]){
    	double time_elapsed = (finish.tv_sec - start.tv_sec);
   	time_elapsed += (finish.tv_nsec - start.tv_nsec) / 1000000000.0;	 
 
-    int res = stbi_write_png("Output.png", width-2, height-2, 3, output.data(), (width-2)*3);
+    stbi_write_png("Output.png", width-2, height-2, 3, output.data(), (width-2)*3);
     finished = 1;
 	points.join();
 	cout << "Finished!" << endl;
