@@ -126,6 +126,7 @@ int main(int argc, char* argv[]){
                 params[i].width = width;
                 params[i].height = height;
                 params[i].threads_amount = threads_amount;
+				params[i].thread_number = i;
 				pthread_create(&thr_id[i], NULL, Sobel, (void *) (params+i));
 	}
 
